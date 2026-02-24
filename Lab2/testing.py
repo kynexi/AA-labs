@@ -2,10 +2,10 @@ import random
 import time
 import matplotlib.pyplot as plt
 
-from merge_sort import merge_sort
-from quick_sort import quick_sort
-from heap_sort import heap_sort
-from count_sort import count_sort
+from algorithms.merge_sort import merge_sort
+from algorithms.quick_sort import quick_sort
+from algorithms.heap_sort import heap_sort
+from algorithms.count_sort import count_sort
 
 input_sizes = [100, 1000, 5000, 10000, 25000, 50000, 100000]
 
