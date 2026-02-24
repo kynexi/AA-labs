@@ -160,14 +160,15 @@ class DropdownBox(InputBox):
         self.options = options
         self.options_background_color = options_background_color
 
+        # Calculate visible options based on actual options count
+        visible_count = min(len(options), self.VISIBLE_OPTIONS)
         self.dropdown_rect = pygame.Rect(
             self.rect.x, 
-            self.rect.y - self.rect.height * self.VISIBLE_OPTIONS,
+            self.rect.y - self.rect.height * visible_count,
             self.rect.width, 
-            self.rect.height * self.VISIBLE_OPTIONS
+            self.rect.height * visible_count
         )
         self.scroll_offset = 0  # Current scroll position
-        self.scrollbar_width = 5  # Width of the scrollbar
         self.selected_option = 0  # Index of the selected option
 
     def render(self, screen):
@@ -182,36 +183,15 @@ class DropdownBox(InputBox):
             pygame.draw.rect(screen, self.options_background_color, self.dropdown_rect)
             pygame.draw.rect(screen, self.color, self.dropdown_rect, 2)
 
-            # Render visible options with scrolling
-            start_index = self.scroll_offset
-            end_index = min(start_index + self.VISIBLE_OPTIONS, len(self.options))
-
-            for index in range(start_index, end_index):
+            # Render all options
+            for index in range(len(self.options)):
                 rect = self.rect.copy()
-                rect.y = self.rect.y - (index - start_index + 1) * self.rect.height
+                rect.y = self.rect.y - (index + 1) * self.rect.height
 
                 pygame.draw.rect(screen, self.options_background_color, rect)
                 pygame.draw.rect(screen, self.color, rect, 1)
                 option_text = self.font.render(self.options[index], 1, self.color)
                 screen.blit(option_text, option_text.get_rect(center=rect.center))
-
-            # Render the scrollbar
-            self.render_scrollbar(screen)
-
-    def render_scrollbar(self, screen):
-        total_options = len(self.options)
-        if total_options > self.VISIBLE_OPTIONS:
-            proportion_visible = self.VISIBLE_OPTIONS / total_options
-            scrollbar_height = int(self.dropdown_rect.height * proportion_visible)
-
-            max_scroll = total_options - self.VISIBLE_OPTIONS
-            proportion_scrolled = self.scroll_offset / max_scroll if max_scroll > 0 else 0
-            scrollbar_rect = pygame.Rect(self.dropdown_rect.right - self.scrollbar_width,
-                                         self.dropdown_rect.y + proportion_scrolled * (self.dropdown_rect.height - scrollbar_height),
-                                         self.scrollbar_width, scrollbar_height)
-
-            # Draw the scrollbar (visual only)
-            pygame.draw.rect(screen, self.color, scrollbar_rect)
 
     def update(self, event):
         super().update(event)
@@ -220,22 +200,13 @@ class DropdownBox(InputBox):
         if self.clicked:
             self.openDropdown = not self.openDropdown
 
-        if self.openDropdown:
-            # Handle mouse wheel scrolling
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 4:  # Scroll up
-                    self.scroll_offset = max(self.scroll_offset - 1, 0)
-                elif event.button == 5:  # Scroll down
-                    self.scroll_offset = min(self.scroll_offset + 1, len(self.options) - self.VISIBLE_OPTIONS)
-
-            # Handle option selection
-            self.handle_option_selection(event)
+        # Handle option selection
+        self.handle_option_selection(event)
 
     def handle_option_selection(self, event):
-        start_index = self.scroll_offset
-        for index in range(start_index, start_index + self.VISIBLE_OPTIONS):
+        for index in range(len(self.options)):
             rect = self.rect.copy()
-            rect.y = self.rect.y - (index - start_index + 1) * self.rect.height
+            rect.y = self.rect.y - (index + 1) * self.rect.height
 
             if rect.collidepoint(pygame.mouse.get_pos()) and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 self.selected_option = index
