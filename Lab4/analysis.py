@@ -71,16 +71,11 @@ def run_analysis():
 
 def plot_results(dijkstra_sparse, dijkstra_dense, floyd_sparse, floyd_dense):
 
-    all_values = (
-        dijkstra_sparse +
-        dijkstra_dense  +
-        floyd_sparse    +
-        floyd_dense
-    )
-    y_max = max(all_values) * 1.1  
+    all_values = dijkstra_sparse + dijkstra_dense + floyd_sparse + floyd_dense
+    y_max = max(all_values) * 1.1
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-    fig.suptitle("Dijkstra vs Floyd-Warshall: Execution Time Analysis", fontsize=14)
+    fig1, axes = plt.subplots(1, 2, figsize=(14, 6))
+    fig1.suptitle("Dijkstra vs Floyd-Warshall — Execution Time Analysis", fontsize=14)
 
     axes[0].plot(NODE_SIZES, dijkstra_sparse, marker='o',
                  label='Sparse', color='steelblue', linewidth=2)
@@ -104,7 +99,33 @@ def plot_results(dijkstra_sparse, dijkstra_dense, floyd_sparse, floyd_dense):
     axes[1].legend()
     axes[1].grid(True, linestyle='--', alpha=0.6)
 
+    fig1.text(
+        0.5, -0.02,
+        "Note: Dijkstra solves single-source shortest path O((V+E) log V)  |  "
+        "Floyd-Warshall solves all-pairs shortest path O(V³)  |  "
+        "Floyd-Warshall capped at 500 nodes",
+        ha='center', fontsize=9, color='gray'
+    )
+
     plt.tight_layout()
-    plt.savefig("analysis_results.png", dpi=150, bbox_inches='tight')
+    fig1.savefig("comparison_normalized.png", dpi=150, bbox_inches='tight')
     plt.show()
-    print("\nGraph saved as analysis_results.png")
+
+    fig2, ax = plt.subplots(figsize=(9, 6))
+
+    ax.plot(NODE_SIZES, dijkstra_sparse, marker='o',
+            label='Sparse', color='steelblue', linewidth=2)
+    ax.plot(NODE_SIZES, dijkstra_dense,  marker='s',
+            label='Dense',  color='tomato',    linewidth=2)
+
+    ax.set_title("Dijkstra's Algorithm — Execution Time vs Number of Nodes", fontsize=13)
+    ax.set_xlabel("Number of Nodes (V)", fontsize=11)
+    ax.set_ylabel("Average Execution Time (ms)", fontsize=11)
+    ax.legend(fontsize=11)
+    ax.grid(True, linestyle='--', alpha=0.6)
+
+    plt.tight_layout()
+    fig2.savefig("dijkstra_standalone.png", dpi=150, bbox_inches='tight')
+    plt.show()
+
+    print("\nGraphs saved as comparison_normalized.png and dijkstra_standalone.png")
