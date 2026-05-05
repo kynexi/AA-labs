@@ -79,3 +79,47 @@ def kruskal(n, edges):
             total_weight += w
 
     return total_weight
+
+sizes = [10, 50, 100, 200, 500]
+
+prim_sparse_times = []
+prim_dense_times = []
+kruskal_sparse_times = []
+kruskal_dense_times = []
+
+for n in sizes:
+    # Sparse graph
+    graph, edges = generate_graph(n, "sparse")
+
+    start = time.time()
+    prim(graph)
+    prim_sparse_times.append(time.time() - start)
+
+    start = time.time()
+    kruskal(n, edges)
+    kruskal_sparse_times.append(time.time() - start)
+
+    # Dense graph
+    graph, edges = generate_graph(n, "dense")
+
+    start = time.time()
+    prim(graph)
+    prim_dense_times.append(time.time() - start)
+
+    start = time.time()
+    kruskal(n, edges)
+    kruskal_dense_times.append(time.time() - start)
+
+plt.figure()
+
+plt.plot(sizes, prim_sparse_times, label="Prim Sparse")
+plt.plot(sizes, prim_dense_times, label="Prim Dense")
+plt.plot(sizes, kruskal_sparse_times, label="Kruskal Sparse")
+plt.plot(sizes, kruskal_dense_times, label="Kruskal Dense")
+
+plt.xlabel("Number of Nodes")
+plt.ylabel("Execution Time (seconds)")
+plt.title("Prim vs Kruskal Runtime Comparison")
+plt.legend()
+
+plt.show()
