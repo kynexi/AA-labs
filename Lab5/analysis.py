@@ -49,3 +49,33 @@ def prim(graph, start=0):
                 heapq.heappush(min_heap, (w, neighbor))
 
     return total_weight
+
+def find(parent, x):
+    if parent[x] != x:
+        parent[x] = find(parent, parent[x])
+    return parent[x]
+
+def union(parent, rank, x, y):
+    rx, ry = find(parent, x), find(parent, y)
+    if rx != ry:
+        if rank[rx] < rank[ry]:
+            parent[rx] = ry
+        elif rank[rx] > rank[ry]:
+            parent[ry] = rx
+        else:
+            parent[ry] = rx
+            rank[rx] += 1
+
+def kruskal(n, edges):
+    edges = sorted(edges, key=lambda x: x[2])
+    parent = list(range(n))
+    rank = [0] * n
+
+    total_weight = 0
+
+    for u, v, w in edges:
+        if find(parent, u) != find(parent, v):
+            union(parent, rank, u, v)
+            total_weight += w
+
+    return total_weight
