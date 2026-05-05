@@ -10,7 +10,7 @@ def generate_graph(n, density="sparse"):
     if density == "sparse":
         num_edges = int(1.5 * n)
     else:
-        num_edges = int(n * (n - 1) / 4)  # not full dense to keep runtime reasonable
+        num_edges = int(n * (n - 1) / 4)
 
     added = set()
 
@@ -29,10 +29,10 @@ def generate_graph(n, density="sparse"):
 
     return graph, edges
 
+
 def prim(graph, start=0):
     visited = set()
     min_heap = [(0, start)]
-
     total_weight = 0
 
     while min_heap:
@@ -49,6 +49,7 @@ def prim(graph, start=0):
                 heapq.heappush(min_heap, (w, neighbor))
 
     return total_weight
+
 
 def find(parent, x):
     if parent[x] != x:
@@ -88,7 +89,7 @@ kruskal_sparse_times = []
 kruskal_dense_times = []
 
 for n in sizes:
-    # Sparse graph
+    # Sparse
     graph, edges = generate_graph(n, "sparse")
 
     start = time.time()
@@ -99,7 +100,7 @@ for n in sizes:
     kruskal(n, edges)
     kruskal_sparse_times.append(time.time() - start)
 
-    # Dense graph
+    # Dense
     graph, edges = generate_graph(n, "dense")
 
     start = time.time()
@@ -109,17 +110,57 @@ for n in sizes:
     start = time.time()
     kruskal(n, edges)
     kruskal_dense_times.append(time.time() - start)
+    
+all_times = (
+    prim_sparse_times +
+    prim_dense_times +
+    kruskal_sparse_times +
+    kruskal_dense_times
+)
+
+y_max = max(all_times) * 1.1  
+
+print("=== Prim's Algorithm Results ===")
+for i, n in enumerate(sizes):
+    print(f"Nodes: {n} | Sparse: {prim_sparse_times[i]:.6f}s | Dense: {prim_dense_times[i]:.6f}s")
+
+print("\n=== Kruskal's Algorithm Results ===")
+for i, n in enumerate(sizes):
+    print(f"Nodes: {n} | Sparse: {kruskal_sparse_times[i]:.6f}s | Dense: {kruskal_dense_times[i]:.6f}s")
+
 
 plt.figure()
+plt.plot(sizes, prim_sparse_times, label="Sparse Graph")
+plt.plot(sizes, prim_dense_times, label="Dense Graph")
+plt.xlabel("Number of Nodes")
+plt.ylabel("Execution Time (seconds)")
+plt.title("Prim's Algorithm Runtime")
+plt.ylim(0, y_max)
+plt.legend()
+plt.savefig("prim_runtime.png")
 
+
+plt.figure()
+plt.plot(sizes, kruskal_sparse_times, label="Sparse Graph")
+plt.plot(sizes, kruskal_dense_times, label="Dense Graph")
+plt.xlabel("Number of Nodes")
+plt.ylabel("Execution Time (seconds)")
+plt.title("Kruskal's Algorithm Runtime")
+plt.ylim(0, y_max)
+plt.legend()
+plt.savefig("kruskal_runtime.png")
+
+
+plt.figure()
 plt.plot(sizes, prim_sparse_times, label="Prim Sparse")
 plt.plot(sizes, prim_dense_times, label="Prim Dense")
 plt.plot(sizes, kruskal_sparse_times, label="Kruskal Sparse")
 plt.plot(sizes, kruskal_dense_times, label="Kruskal Dense")
-
 plt.xlabel("Number of Nodes")
 plt.ylabel("Execution Time (seconds)")
 plt.title("Prim vs Kruskal Runtime Comparison")
+plt.ylim(0, y_max)
 plt.legend()
+plt.savefig("combined_runtime.png")
 
 plt.show()
