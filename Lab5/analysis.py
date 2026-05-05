@@ -28,3 +28,24 @@ def generate_graph(n, density="sparse"):
         added.add((u, v))
 
     return graph, edges
+
+def prim(graph, start=0):
+    visited = set()
+    min_heap = [(0, start)]
+
+    total_weight = 0
+
+    while min_heap:
+        weight, node = heapq.heappop(min_heap)
+
+        if node in visited:
+            continue
+
+        visited.add(node)
+        total_weight += weight
+
+        for neighbor, w in graph[node]:
+            if neighbor not in visited:
+                heapq.heappush(min_heap, (w, neighbor))
+
+    return total_weight
